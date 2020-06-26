@@ -657,3 +657,4 @@ else:
     
 comm.Gatherv(mac_ang,[mac_ang_full,split_sizes_output2_gen,displacements_output2_gen,MPI.DOUBLE],root=0)
 comm.Gatherv(mac_spd,[mac_spd_full,split_sizes_output2_gen,displacements_output2_gen,MPI.DOUBLE],root=0)
+MPI.Finalize()
