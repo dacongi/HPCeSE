@@ -1,3 +1,7 @@
+Go to the Palmetto Cluster and request computing resources. I suggest 16 cores and 32 GB memory for a general testing task. For the largest case 8100.txt, more memory should be requested.
+
+Simply download the input folder and the run.py in your current directory, and run with the following command.
+
 module purge
 
 module load gcc/4.8.1 openmpi/1.10.3 python/3.4
