@@ -1,3 +1,16 @@
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#! run.py: Power System Dynamic simulation Application
+#! Author: Cong Wang 
+#! Reference: Shuangshuang Jin's Fortran Code
+#! Sample execution: 
+#!     qsub -I -l select=1:ncpus=16:mpiprocs=16:mem=32gb,walltime=08:00:00
+#!     module purge
+#!     module load gcc/4.8.1 openmpi/1.10.3 python/3.4
+#!     make
+#!     mpirun -np --mca mpi_cuda_support 0 python run.py 3000.txt
+#! Last updated: 6-29-2020
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 import sys
 from mpi4py import MPI
 import numpy as np
