@@ -17,7 +17,7 @@ import math as mt
 from scipy.linalg.lapack import zgesv
 from scipy.linalg.blas import zgemm
 
-
+#Create a function to build full Y matrix
 def y_sparse(flag):
 
     tap=np.ones((array_sizes_brch[rank]),dtype=np.complex128)
@@ -87,6 +87,7 @@ def y_sparse(flag):
     
     return Y
 
+#Create a function to build reduced Y matrix
 def reduce_y(comm,flag):
     
     Y_a=np.zeros((array_sizes_gen[rank],ngen),dtype=np.complex128)
@@ -356,7 +357,8 @@ if __name__ == '__main__':
         #for gathering to a ngen*nbus matrix
         split_sizes_output1_gen = array_sizes_gen*nbus
         displacements_output1_gen = np.insert(np.cumsum(split_sizes_output1_gen),0,0)[0:-1]
-
+        
+        #for operations cannot be assigned to each process
         bus_int=ipt_bus[:,0]
         bus_v=ipt_bus[:,1]
         bus_a=ipt_bus[:,2]
@@ -367,6 +369,7 @@ if __name__ == '__main__':
 
 
     else:
+        #create corresponding None object on other process
         ipt_bus = None
         ipt_brch = None
         ipt_gen = None
@@ -453,7 +456,8 @@ if __name__ == '__main__':
     comm.Scatterv([ipt_gen,split_sizes_input_gen,displacements_input_gen,MPI.DOUBLE],recv_ipt_gen,root=0)
 
     comm.Barrier()
-
+    
+    #start building full Y matrix and reduced Y matrix
     start_Ybus=MPI.Wtime()
     prefY11 = reduce_y(comm,0)
 
@@ -532,7 +536,8 @@ if __name__ == '__main__':
     eterm=bus_v[tst1-1].astype(np.float64) # terminal bus voltage
     pelect[:,0]=bus_pg[tst1-1]     # BUS_pg
     qelect=bus_qg[tst1-1]     # BUS_qg
-
+    
+    #compute initial values for generator dynamics
     curr=np.sqrt(pelect[:,0]*pelect[:,0]+qelect*qelect)/(eterm*mva)
     phi=np.arctan2(qelect,pelect[:,0])
     v=eterm*np.exp(jay*theta[tst1-1])
@@ -613,12 +618,11 @@ if __name__ == '__main__':
         pelect[:,S_Steps-1] = eq*curq+ed*curd
         qelect = eq*curd-ed*curq
 
-
         dmac_ang[:,S_Steps-1] = basrad*(mac_spd[:,S_Steps-1]-1.0)
         dmac_spd[:,S_Steps-1] = (pmech-pelect[:,S_Steps-1]-gen_do*(mac_spd[:,S_Steps-1]-1.0))/(2.0*gen_H)
-
+        
+        #Adam-Bashforth integration steps
         if S_Steps == 1:
-
             k1_mac_ang = h_sol1*dmac_ang[:,S_Steps-1]
             k1_mac_spd = h_sol1*dmac_spd[:,S_Steps-1]
 
