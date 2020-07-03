@@ -181,7 +181,7 @@ def reduce_y(comm,flag):
             permPV=perm
     
     zgemm(alpha,diagy,permPV,beta,Ymod,0,1,1)  
-    Ymod_all=comm.allreduce(Ymod)
+    Ymod_all=comm.Allreduce(Ymod)
     zgemm(alpha,permPV,Ymod_all,beta,permmod,1,0,1)
 
     recv_Ymod = np.zeros((array_sizes_gen[rank],ngen),dtype=np.complex128)
@@ -198,7 +198,7 @@ def reduce_y(comm,flag):
         for k in range(ngen):
             Y_d[recv_g_bus[i]-1,g_bus[k]-1]=Y_d[recv_g_bus[i]-1,g_bus[k]-1]+permmod[i,k]
 
-    Y_d_full=comm.allreduce(Y_d)
+    Y_d_full=comm.Allreduce(Y_d)
 
     if flag == 0:
         prefrecV1=-zgesv(Y_d_full,Y_c,1,1)[2]
