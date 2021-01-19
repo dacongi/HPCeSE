@@ -15,7 +15,7 @@ basrad=2*cp.pi*sys_freq
 # read in data
 
 x=[]
-with open("../DSPython/MPI/input/36001.txt") as f:
+with open("input/36001.txt") as f:
     for line in f:
         line = line.split()
         if len(line)==1 and m==0:
