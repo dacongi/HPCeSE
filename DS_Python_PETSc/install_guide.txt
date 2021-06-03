@@ -1,0 +1,30 @@
+	1. Download PETSc
+
+	git clone -b release https://gitlab.com/petsc/petsc.git petsc
+	
+	2. Setup the path for PETSc
+
+	export PETSC_DIR=/home/liweiw/petsc4py/code/DS_Petsc/petsc
+	export PETSC_ARCH=arch-linux-c-debug
+	
+	3. Load dependencies
+
+	pip3 install --user Cython
+	
+	module load openmpi/3.1.5-gcc/8.3.1-cuda11_0-ucx
+	module load openmpi/1.10.3-gcc/5.4.0-cuda9_2
+	
+	4. Install and make
+
+	./configure --with-cc=gcc --with-fc=gfortran --with-cxx=g++ --with-clanguage=c --download-fblaslapack --download-openmpi --with-scalar-type=complex --with-precision=double --download-petsc4py 
+	
+	make PETSC_DIR=/home/liweiw/petsc4py/code/DS_Petsc/petsc PETSC_ARCH=arch-linux-c-debug all
+	
+	make PETSC_DIR=/home/liweiw/petsc4py/code/DS_Petsc/petsc PETSC_ARCH=arch-linux-c-debug check
+
+	5. Add petsc4py lib to python path
+	
+	export PYTHONPATH="${PYTHONPATH}:/home/liweiw/petsc4py/code/DS_Petsc/petsc/arch-linux-c-debug/lib"
+	
+	
+./configure --with-cc=gcc --with-fc=gfortran --with-cxx=g++ --with-clanguage=c --download-fblaslapack --with-scalar-type=complex --with-precision=double --download-petsc4py --download-superlu --download-scalapack --download-mumps --download-metis --download-parmetis
