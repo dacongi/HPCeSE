@@ -10,13 +10,11 @@
 	3. Load dependencies
 
 	pip3 install --user Cython
-	
-	module load openmpi/3.1.5-gcc/8.3.1-cuda11_0-ucx
-	module load openmpi/1.10.3-gcc/5.4.0-cuda9_2
+	openmpi/3.1.6-gcc/8.3.1-cuda10_2-ucx
 	
 	4. Install and make
 
-	./configure --with-cc=gcc --with-fc=gfortran --with-cxx=g++ --with-clanguage=c --download-fblaslapack --download-openmpi --with-scalar-type=complex --with-precision=double --download-petsc4py 
+	./configure --download-fblaslapack --with-mpi-dir=/software/spackages/linux-centos8-x86_64/gcc-8.3.1/openmpi-3.1.6-otcopqkdim5tm5ndifcmjlmzqpwcm2xv --with-scalar-type=complex --with-precision=double --download-petsc4py --download-make --download-superlu_dist
 	
 	make PETSC_DIR=/home/liweiw/petsc4py/code/DS_Petsc/petsc PETSC_ARCH=arch-linux-c-debug all
 	
@@ -27,4 +25,4 @@
 	export PYTHONPATH="${PYTHONPATH}:/home/liweiw/petsc4py/code/DS_Petsc/petsc/arch-linux-c-debug/lib"
 	
 	
-./configure --with-cc=gcc --with-fc=gfortran --with-cxx=g++ --with-clanguage=c --download-fblaslapack --with-scalar-type=complex --with-precision=double --download-petsc4py --download-superlu --download-scalapack --download-mumps --download-metis --download-parmetis
+Another optional packages: --download-superlu --download-scalapack --download-mumps --download-metis --download-parmetis
