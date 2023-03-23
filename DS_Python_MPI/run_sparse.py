@@ -5,7 +5,7 @@
 #!     qsub -I -l select=1:ncpus=16:mpiprocs=16:mem=32gb,walltime=08:00:00
 #!     module purge
 #!     conda activate pnnl
-#!     mpirun -np 1 python -W ignore run_sparse.py 3000.txt
+#!     mpirun -np 1 python -W ignore run_sparse.py 3000
 #! Last updated: 4-29-2021
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 import time
