@@ -109,7 +109,7 @@ if __name__ == '__main__':
     size = comm.Get_size()
     rank = comm.Get_rank()
     
-    csr_matrix, csc_matrix = sparse_matrix(sys.argv[-2])
+    csr_matrix,csc_matrix = sparse_matrix(sys.argv[-2])
     start=time.time()
     jay=1j
     basmva=100
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     complex128,float64,count_nonzero,where,ones,zeros,arange,exp,a_append,eye,logical_and,array = methods(sys.argv[-2])
     
     if rank == 0:
-        ipt_bus, ipt_brch, ipt_gen, ipt_switch, nbus, nbrch, ngen, nsw = parser(sys.argv[-1], array)
+        ipt_bus,ipt_brch,ipt_gen,ipt_switch,nbus,nbrch,ngen,nsw = parser(sys.argv[-1], array)
 
         a=arange(nbrch)
         tap=ones((nbrch),dtype=complex128)
