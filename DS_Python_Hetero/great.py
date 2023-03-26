@@ -15,14 +15,14 @@ from mpi4py import MPI
 import math as mt
 import numpy as np
 import cupy as cp
-from func import m_ang_3step_ab, m_spd_3step_ab, solver, sparse_matrix, methods, parser
+from func import m_ang_ab, m_spd_ab, solver, sp_mat, methods, parser
 
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
     rank = comm.Get_rank()
     
-    csr_matrix,csc_matrix = sparse_matrix(sys.argv[-2])
+    csr_matrix,csc_matrix = sp_mat(sys.argv[-2])
     start=time.time()
     jay=1j
     basmva=100
@@ -264,14 +264,9 @@ if __name__ == '__main__':
     frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
     posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
 
-    temp=Y_b.dot(prefrecV1)
-    prefY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+temp.transpose()
-
-    temp=Y_b.dot(frecV1)
-    fY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+temp.transpose()
-
-    temp=Y_b.dot(posfrecV1)
-    posfY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+temp.transpose()
+    prefY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(prefrecV1).transpose()
+    fY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(frecV1).transpose()
+    posfY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(posfrecV1).transpose()
     t77=time.time()
 
     if sys.argv[-2] == 'gpu':
@@ -393,8 +388,8 @@ if __name__ == '__main__':
         dmac_spd[S_Steps-1] = (pmech-mva*pelect-g_do[absolute_ps[rank]:absolute_ps[rank+1]]*(mac_spd[S_Steps-1]-1.0))/(2.0*g_H[absolute_ps[rank]:absolute_ps[rank+1]])
 
         # 3 steps Adam-Bashforth integration steps
-        mac_ang = m_ang_3step_ab(dmac_ang, mac_ang, mac_spd[S_Steps-1], S_Steps, h_sol1, basrad)
-        mac_spd = m_spd_3step_ab(dmac_spd, mac_spd, pmech, mva, pelect, g_do[absolute_ps[rank]:absolute_ps[rank+1]], g_H[absolute_ps[rank]:absolute_ps[rank+1]], S_Steps, h_sol1)
+        mac_ang = m_ang_ab(dmac_ang, mac_ang, mac_spd[S_Steps-1], S_Steps, h_sol1, basrad)
+        mac_spd = m_spd_ab(dmac_spd, mac_spd, pmech, mva, pelect, g_do[absolute_ps[rank]:absolute_ps[rank+1]], g_H[absolute_ps[rank]:absolute_ps[rank+1]], S_Steps, h_sol1)
 
     t2 = time.time()
     end=time.time()

@@ -1,4 +1,4 @@
-def m_ang_3step_ab(d_y, y, v, n_step, step_w, basrad):
+def m_ang_ab(d_y, y, v, n_step, step_w, basrad):
     c_step = n_step-1
     
     if c_step < 2:
@@ -13,7 +13,7 @@ def m_ang_3step_ab(d_y, y, v, n_step, step_w, basrad):
     return y
 
 
-def m_spd_3step_ab(d_y, y, pmech, mva, pelect, g_do, g_H, n_step, step_w):
+def m_spd_ab(d_y, y, pmech, mva, pelect, g_do, g_H, n_step, step_w):
     c_step = n_step-1
     
     if c_step < 2:
@@ -37,7 +37,7 @@ def solver(A, B, command_1):
         return spsolve(A, B.T)
 
     
-def sparse_matrix(command_1):
+def sp_mat(command_1):
     if command_1 == 'gpu':
         from cupyx.scipy.sparse import csr_matrix, csc_matrix
         return csr_matrix, csc_matrix
