@@ -47,37 +47,13 @@ def sp_mat(command_1):
 
     
 def methods(command_1):
+    import cupy as cp
+    import numpy as np
+    
     if command_1 == 'gpu':
-        import cupy as cp
-        from cupy import array
-        cuda_setup=cp.empty(1)
-        complex128=cp.complex128
-        float64=cp.float64
-        count_nonzero=cp.count_nonzero
-        where=cp.where
-        ones=cp.ones
-        zeros=cp.zeros
-        arange=cp.arange
-        exp=cp.exp
-        a_append=cp.append
-        eye=cp.eye
-        logical_and=cp.logical_and
-    else:
-        import numpy as np
-        from numpy import array
-        complex128=np.complex128
-        float64=np.float64
-        count_nonzero=np.count_nonzero
-        where=np.where
-        ones=np.ones
-        zeros=np.zeros
-        arange=np.arange
-        exp=np.exp
-        a_append=np.append
-        eye=np.eye
-        logical_and=np.logical_and
+        np = cp
         
-    return complex128, float64, count_nonzero, where, ones, zeros, arange, exp, a_append, eye, logical_and, array
+    return np.complex128, np.float64, np.count_nonzero, np.where, np.ones, np.zeros, np.arange, np.exp, np.append, np.eye, np.logical_and, np.array
 
 
 def parser(command_2, array, dtype):
