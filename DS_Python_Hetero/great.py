@@ -15,94 +15,7 @@ from mpi4py import MPI
 import math as mt
 import numpy as np
 import cupy as cp
-
-def solver(A, B, command_1):
-    if command_1 == 'gpu':
-        from cupyx.scipy.sparse.linalg import splu
-        return splu(A).solve(B.T.toarray())
-    else:
-        from scipy.sparse.linalg import spsolve
-        return spsolve(A, B.T)
-    
-def sparse_matrix(command_1):
-    if command_1 == 'gpu':
-        from cupyx.scipy.sparse import csr_matrix, csc_matrix
-        return csr_matrix, csc_matrix
-    else:
-        from scipy.sparse import csc_matrix, csr_matrix
-        return csr_matrix, csc_matrix
-
-def methods(command_1):
-    if command_1 == 'gpu':
-        from cupy import array
-        cuda_setup=cp.empty(1)
-        complex128=cp.complex128
-        float64=cp.float64
-        count_nonzero=cp.count_nonzero
-        where=cp.where
-        ones=cp.ones
-        zeros=cp.zeros
-        arange=cp.arange
-        exp=cp.exp
-        a_append=cp.append
-        eye=cp.eye
-        logical_and=cp.logical_and
-    else:
-        from numpy import array
-        complex128=np.complex128
-        float64=np.float64
-        count_nonzero=np.count_nonzero
-        where=np.where
-        ones=np.ones
-        zeros=np.zeros
-        arange=np.arange
-        exp=np.exp
-        a_append=np.append
-        eye=np.eye
-        logical_and=np.logical_and
-        
-    return complex128, float64, count_nonzero, where, ones, zeros, arange, exp, a_append, eye, logical_and, array
-
-def parser(command_2,array):
-    n=0
-    m=0
-    x=[]
-    
-    with open("input/"+command_2+'.txt') as f:
-        for line in f:
-            line = line.split()
-            if len(line)==1 and m==0:
-                nbus=n
-                a=x
-                m=m+1
-                x=[]
-                continue
-            elif len(line)==1 and m==1:
-                nbrch=n-nbus
-                b=x
-                m=m+1
-                x=[]
-                continue
-            elif len(line)==1 and m==2:
-                ngen=n-nbrch-nbus
-                c=x
-                m=m+1
-                x=[]
-                continue
-            elif len(line)==1 and m==3:
-                nsw=n-nbus-nbrch-ngen
-                d=x
-                continue
-            x.append(line)
-            n=n+1
-            
-    ipt_bus=array(a,dtype=float64)
-    ipt_brch=array(b,dtype=float64)
-    ipt_gen=array(c,dtype=float64)
-    ipt_switch=array(d,dtype=float64)
-    
-    return ipt_bus, ipt_brch, ipt_gen, ipt_switch, nbus, nbrch, ngen, nsw
-
+from func import m_ang_3step_ab, m_spd_3step_ab, solver, sparse_matrix, methods, parser
 
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
@@ -118,7 +31,7 @@ if __name__ == '__main__':
     complex128,float64,count_nonzero,where,ones,zeros,arange,exp,a_append,eye,logical_and,array = methods(sys.argv[-2])
     
     if rank == 0:
-        ipt_bus,ipt_brch,ipt_gen,ipt_switch,nbus,nbrch,ngen,nsw = parser(sys.argv[-1], array)
+        ipt_bus,ipt_brch,ipt_gen,ipt_switch,nbus,nbrch,ngen,nsw = parser(sys.argv[-1], array, float64)
 
         a=arange(nbrch)
         tap=ones((nbrch),dtype=complex128)
@@ -480,24 +393,8 @@ if __name__ == '__main__':
         dmac_spd[S_Steps-1] = (pmech-mva*pelect-g_do[absolute_ps[rank]:absolute_ps[rank+1]]*(mac_spd[S_Steps-1]-1.0))/(2.0*g_H[absolute_ps[rank]:absolute_ps[rank+1]])
 
         # 3 steps Adam-Bashforth integration steps
-        if S_Steps-1 < 2:
-            k1_mac_ang = h_sol1*dmac_ang[S_Steps-1]
-            k1_mac_spd = h_sol1*dmac_spd[S_Steps-1]
-
-            k2_mac_ang = h_sol1*(basrad*(mac_spd[S_Steps-1]+k1_mac_ang/2.0-1.0))
-            k2_mac_spd = h_sol1*(pmech-mva*pelect-g_do[absolute_ps[rank]:absolute_ps[rank+1]]*(mac_spd[S_Steps-1]+k1_mac_spd/2.0-1.0))/(2.0*g_H[absolute_ps[rank]:absolute_ps[rank+1]])
-
-            k3_mac_ang = h_sol1*(basrad*(mac_spd[S_Steps-1]+k2_mac_ang/2.0-1.0))
-            k3_mac_spd = h_sol1*(pmech-mva*pelect-g_do[absolute_ps[rank]:absolute_ps[rank+1]]*(mac_spd[S_Steps-1]+k2_mac_spd/2.0-1.0))/(2.0*g_H[absolute_ps[rank]:absolute_ps[rank+1]])
-
-            k4_mac_ang = h_sol1*(basrad*(mac_spd[S_Steps-1]+k3_mac_ang-1.0))
-            k4_mac_spd = h_sol1*(pmech-mva*pelect-g_do[absolute_ps[rank]:absolute_ps[rank+1]]*(mac_spd[S_Steps-1]+k3_mac_spd-1.0))/(2.0*g_H[absolute_ps[rank]:absolute_ps[rank+1]])
-
-            mac_ang[S_Steps] = mac_ang[S_Steps-1]+(k1_mac_ang+2*k2_mac_ang+2*k3_mac_ang+k4_mac_ang)/6.0
-            mac_spd[S_Steps] = mac_spd[S_Steps-1]+(k1_mac_spd+2*k2_mac_spd+2*k3_mac_spd+k4_mac_spd)/6.0
-        else:
-            mac_ang[S_Steps] = mac_ang[S_Steps-1]+h_sol1*(23*dmac_ang[S_Steps-1]-16*dmac_ang[S_Steps-2]+5*dmac_ang[S_Steps-3])/12.0
-            mac_spd[S_Steps] = mac_spd[S_Steps-1]+h_sol1*(23*dmac_spd[S_Steps-1]-16*dmac_spd[S_Steps-2]+5*dmac_spd[S_Steps-3])/12.0
+        mac_ang = m_ang_3step_ab(dmac_ang, mac_ang, mac_spd[S_Steps-1], S_Steps, h_sol1, basrad)
+        mac_spd = m_spd_3step_ab(dmac_spd, mac_spd, pmech, mva, pelect, g_do[absolute_ps[rank]:absolute_ps[rank+1]], g_H[absolute_ps[rank]:absolute_ps[rank+1]], S_Steps, h_sol1)
 
     t2 = time.time()
     end=time.time()
