@@ -1,3 +1,6 @@
+import cupy as cp
+import numpy as np
+
 def m_ang_ab(d_y, y, v, n_step, step_w, basrad):
     c_step = n_step-1
     
@@ -47,9 +50,6 @@ def sp_mat(command_1):
 
     
 def methods(command_1):
-    import cupy as cp
-    import numpy as np
-    
     if command_1 == 'gpu':
         np = cp
         
@@ -95,3 +95,18 @@ def parser(command_2, array, dtype):
     b_4=array(d,dtype=dtype)
     
     return b_1, b_2, b_3, b_4, nb_1, nb_2, nb_3, nb_4
+
+
+def array_partition(array, npart):
+    #build a function to partition the related data
+    split_array = np.array_split(array,npart,axis=0)
+    
+    #create a list to store each splitted array's size
+    array_sizes = []
+    for i in range(0,len(split_array),1):
+        array_sizes = np.append(array_sizes, len(split_array[i])).astype(int)
+
+    #for indexing or slicing ngen arrays
+    absolute_ps = np.insert(np.cumsum(array_sizes), 0, 0)
+    
+    return array_sizes, absolute_ps

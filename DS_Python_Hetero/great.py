@@ -176,16 +176,7 @@ if __name__ == '__main__':
 
         Y_2.setdiag(Y_2.diagonal()+yl+Gb+jay*Bb)
 
-        #build a function to partition the ngen related data
-        split_array_gen = np.array_split(ipt_gen,size,axis=0)
-
-        #create a list to store each splitted array's size
-        array_sizes_gen = []
-        for i in range(0,len(split_array_gen),1):
-            array_sizes_gen = np.append(array_sizes_gen, len(split_array_gen[i])).astype(int)
-
-        #for indexing or slicing arrays
-        absolute_ps = np.insert(np.cumsum(array_sizes_gen), 0, 0)
+        array_sizes_gen,absolute_ps = array_partition(ipt_gen, size)
 
     else:
         array_sizes_gen = None
