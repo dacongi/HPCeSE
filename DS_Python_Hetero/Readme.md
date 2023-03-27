@@ -1,3 +1,5 @@
+# Heterogeneous version of DS, single source code using CPU or GPU
+
 #qsub -I -X -l select=1:ncpus=16:mem=64gb:ngpus=1:gpu_model=v100:phase=28:interconnect=hdr,walltime=10:20:00
 
 #nvidia-cuda-mps-control -d
