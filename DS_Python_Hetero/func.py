@@ -53,7 +53,7 @@ def methods(command_1):
     if command_1 == 'gpu':
         np = cp
         
-    return np.complex128, np.float64, np.count_nonzero, np.where, np.ones, np.zeros, np.arange, np.exp, np.append, np.eye, np.logical_and, np.array
+    return np.complex128, np.float64, np.count_nonzero, np.where, np.ones, np.zeros, np.arange, np.exp, np.append, np.eye, np.logical_and, np.array, np.amax
 
 
 def parser(command_2, array, dtype):

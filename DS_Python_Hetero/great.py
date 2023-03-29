@@ -23,12 +23,14 @@ if __name__ == '__main__':
     rank = comm.Get_rank()
     
     csr_matrix,csc_matrix = sp_mat(sys.argv[-2])
+    complex128,float64,count_nonzero,where,ones,zeros,arange,exp,a_append,eye,logical_and,array,amax = methods(sys.argv[-2])
+    
     start=time.time()
     jay=1j
     basmva=100
     sys_freq=60
     
-    complex128,float64,count_nonzero,where,ones,zeros,arange,exp,a_append,eye,logical_and,array = methods(sys.argv[-2])
+    
     
     if rank == 0:
         ipt_bus,ipt_brch,ipt_gen,ipt_switch,nbus,nbrch,ngen,nsw = parser(sys.argv[-1], array, float64)
@@ -251,13 +253,13 @@ if __name__ == '__main__':
     t44=MPI.Wtime()
 
     t67=time.time()
-    prefrecV1=csr_matrix(-solver(Y,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
-    frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
-    posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
+    prefrecV1=csr_matrix(-solver(Y,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T.toarray(),sys.argv[-2]))
+    frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T.toarray(),sys.argv[-2]))
+    posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T.toarray(),sys.argv[-2]))
 
-    prefY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(prefrecV1).transpose()
-    fY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(frecV1).transpose()
-    posfY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(posfrecV1).transpose()
+    prefY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(prefrecV1).T
+    fY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(frecV1).T
+    posfY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(posfrecV1).T
     t77=time.time()
 
     if sys.argv[-2] == 'gpu':
