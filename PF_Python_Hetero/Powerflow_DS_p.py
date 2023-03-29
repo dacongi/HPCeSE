@@ -1,4 +1,4 @@
-#python -W ignore Powerflow_DS.py 9984
+#mpirun -np 1 --mca opal_cuda_support 1 python -W ignore Powerflow_DS_p.py gpu 19968
 #qsub -I -X -l select=1:ncpus=16:mem=64gb:ngpus=1:gpu_model=a100:phase=28:interconnect=hdr,walltime=10:20:00
 import time
 import sys
