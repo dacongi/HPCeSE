@@ -197,10 +197,13 @@ while (conv_flag == 1 and itera < iter_max):
     Vm_diag=comm.bcast(Vm_diag)
     if sys.argv[-2] == 'gpu':
         with cp.cuda.Device(rank):
+            t5=time.time()
             S1=(S_diag+SS).dot(csc_matrix(solver(Vm_diag,volt_red[absolute_ps_volt[rank]:absolute_ps_volt[rank+1]].T,sys.argv[-2]).get()))
+            t6=time.time()
+            print(t6-t5)
     else:
         S1=(S_diag+SS).dot(csc_matrix(solver(Vm_diag,volt_red[absolute_ps_volt[rank]:absolute_ps_volt[rank+1]].T,sys.argv[-2])))
-
+    
     S2=(S_diag-SS).dot(ang_red[absolute_ps_ang[rank]:absolute_ps_ang[rank+1]].T)
     S1=S1.reshape(S1.shape[0],absolute_ps_volt[rank+1]-absolute_ps_volt[rank])
 
@@ -228,8 +231,10 @@ while (conv_flag == 1 and itera < iter_max):
         dP_red = ang_red.dot(dP)
         dQ_red = volt_red.dot(dQ)
         b = a_append(dP_red,dQ_red)
-
+        t5=time.time()
         sol = solver(J,b,sys.argv[-1])#splu(J).solve(b)
+        t6=time.time()
+        print(t6-t5)
         dang = (ang_red.T).dot(sol[:len(PQV)])
         dV = (volt_red.T).dot(sol[len(PQV):len(PQV)+len(PQ)])
 
