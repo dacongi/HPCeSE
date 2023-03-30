@@ -47,18 +47,16 @@ def solver(A, B, command_1):
         from cupyx.scipy.sparse import isspmatrix
         if not isspmatrix(A):
             A=csc_matrix(A)
-            print(type(A))
 
         if isspmatrix(B):
             B=B.toarray()
-            #print(type(B))
         else:
             B=csc_matrix(B).toarray()
 
         return csc_matrix(splu(A).solve(B))
     else:
         from scipy.sparse.linalg import spsolve
-        return spsolve(A, B)#.T)
+        return spsolve(A, B)
 
     
 def stack(command_1):
@@ -74,7 +72,7 @@ def methods(command_1):
     import numpy as np
     if command_1 == 'gpu':
         np = cp
-        cuda_setup=np.empty(1)
+        #cuda_setup=np.empty(1)
 
     return np.complex128, np.float64, np.count_nonzero, np.where, np.ones, np.zeros, np.arange, np.exp, np.append, np.eye, np.logical_and, np.array, np.amax
 

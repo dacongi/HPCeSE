@@ -6,6 +6,7 @@ import math as mt
 from mpi4py import MPI
 from func import m_ang_ab,m_spd_ab,solver,sp_mat,methods,parser,array_partition,stack
 import numpy as np
+import cupy as cp
 
 comm = MPI.COMM_WORLD
 size = comm.Get_size()
@@ -184,21 +185,19 @@ while (conv_flag == 1 and itera < iter_max):
         S_diag.setdiag(S)
         V_CPLX_diag.setdiag(bus_volt)
         Vm_diag.setdiag(abs(V))
-
         SS=V_CPLX_diag.dot(Y.conj()).dot(V_CPLX_diag.conj())
-        #J=csc_matrix((len_of_noref+len_of_load,len_of_noref+len_of_load),dtype=complex128)
 
     else:
         SS=None
         S_diag=None
         Vm_diag=None
-        #J=None
-
+        
     S_diag=comm.bcast(S_diag)
     SS=comm.bcast(SS)
     Vm_diag=comm.bcast(Vm_diag)
     if sys.argv[-2] == 'gpu':
-        S1=(S_diag+SS).dot(csc_matrix(solver(Vm_diag,volt_red[absolute_ps_volt[rank]:absolute_ps_volt[rank+1]].T,sys.argv[-2]).get()))
+        with cp.cuda.Device(rank):
+            S1=(S_diag+SS).dot(csc_matrix(solver(Vm_diag,volt_red[absolute_ps_volt[rank]:absolute_ps_volt[rank+1]].T,sys.argv[-2]).get()))
     else:
         S1=(S_diag+SS).dot(csc_matrix(solver(Vm_diag,volt_red[absolute_ps_volt[rank]:absolute_ps_volt[rank+1]].T,sys.argv[-2])))
 
@@ -231,10 +230,9 @@ while (conv_flag == 1 and itera < iter_max):
         b = a_append(dP_red,dQ_red)
 
         sol = solver(J,b,sys.argv[-1])#splu(J).solve(b)
-        print(sol.shape)
         dang = (ang_red.T).dot(sol[:len(PQV)])
         dV = (volt_red.T).dot(sol[len(PQV):len(PQV)+len(PQ)])
-        #print(dV)
+
         V = V + dV
         theta = theta + dang
         bus_volt = V*exp(jay*theta)
@@ -264,11 +262,11 @@ while (conv_flag == 1 and itera < iter_max):
         if len(j[0])>0:
             print('There are Qg < Qgmin at iter',itera)
         t433=time.time()
-        #print(t433-t333)
+
     conv_flag=comm.bcast(conv_flag)
-    #print(itera)
+
     t6=time.time()
-    print(t6-t5)
+    #print(t6-t5)
 if rank == 0:
     b_pg[ref]=P[ref] + Pl[ref]
     b_pg[PV]=P[PV] + Pl[PV]
