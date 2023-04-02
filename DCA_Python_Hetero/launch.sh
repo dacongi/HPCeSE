@@ -20,7 +20,7 @@ for ((i=0; i<1; i++)); do
     export CUDA_MPS_LOG_DIRECTORY=/tmp/mps_log_$i
     
     nvidia-cuda-mps-control -d
-    mpirun -np 8 python -W ignore we1.py $i 391.txt > $i.log &
+    mpirun -np 8 python -W ignore we1.py $i 391.txt &
 done
 #conda deactivate
 
