@@ -7,8 +7,6 @@ import math
 from numba import cuda, types, float64, complex128
 import sys
 
-TPB = 10
-
 @cuda.jit
 def fast_sim(prefY11, fY11, posfY11, eprime, C, mac_ang, mac_spd, edprime, eqprime, g_dtr, eterm, pelect, qelect, dmac_ang, dmac_spd, pmech, g_do, g_H, steps1, steps2, mva, basmva, h_sol1, jay, basrad, curq, curd, curqg, curdg, ed, eq, k1_mac_ang, k1_mac_spd, k2_mac_ang, k2_mac_spd, k3_mac_ang, k3_mac_spd, k4_mac_ang, k4_mac_spd, sim_k, ngen):
     
@@ -423,7 +421,7 @@ for ii in range (iterations):
     h_sol2=h_sol1
 
     # set the number of threads in a block
-    threadsperblock = 16
+    threadsperblock = ngen
     blockspergrid = math.ceil(ngen/threadsperblock)
     #print(case_id)
     fast_sim[blockspergrid, threadsperblock](prefY11, fY11, posfY11, eprime, C, mac_ang, mac_spd, edprime, eqprime, g_dtr, eterm, pelect, qelect, dmac_ang, dmac_spd, pmech, g_do, g_H, steps1, steps2, mva, basmva, h_sol1, jay, basrad, curq, curd, curqg, curdg, ed, eq, k1_mac_ang, k1_mac_spd, k2_mac_ang, k2_mac_spd, k3_mac_ang, k3_mac_spd, k4_mac_ang, k4_mac_spd, sim_k, ngen)
@@ -435,4 +433,5 @@ end.synchronize()
     
 comm.Barrier()
 t1 = time.time()
-print("Rank", rank, "on GPU", int(sys.argv[-2]), "takes", format(t1-t0,'.2f'), "to finish")
+if rank == 0:
+    print("GPU", int(sys.argv[-2]), "takes", format(t1-t0,'.2f'), "to finish")
