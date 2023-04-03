@@ -7,10 +7,19 @@ export CUDA_VISIBLE_DEVICES=0,1
 module load anaconda3/2022.05-gcc
 source activate paper5
 
-#nvidia-smi -c EXCLUSIVE_PROCESS
-#gpus_count=$(nvidia-smi.exe -L | wc -l)
+echo -n 'Test system: ' 
+read TEST_SYS
+echo -n "Total number of cases (max:1024): "
+read TCASE
+gpus_count=$(nvidia-smi -L | wc -l)
+echo Total number of GPU: $gpus_count
+echo -n "Number of GPUs used: " 
+read NGPU
+echo -n "Number of processes each GPU launched: " 
+read NPROCS
+echo Running on $NGPU GPUs
 
-for ((i=0; i<2; i++)); do
+for ((i=0; i<gpus_count; i++)); do
 
     mkdir /tmp/mps_$i
     mkdir /tmp/mps_log_$i
@@ -20,16 +29,16 @@ for ((i=0; i<2; i++)); do
     nvidia-cuda-mps-control -d
 done
 
-for ((i=0; i<2; i++)); do
+for ((i=0; i<gpus_count; i++)); do
 
     export CUDA_VISIBLE_DEVICES=$i
-    mpirun -np 8 python -W ignore DCA_mpi.py $i 391.txt &
+    mpirun -np $NPROCS python -W ignore DCA_mpi.py $TCASE $NGPU $i $TEST_SYS &
 done
 wait
 
 echo quit | nvidia-cuda-mps-control
 
-for ((i=0; i< 2; i++)); do
+for ((i=0; i<gpus_count; i++)); do
     #export CUDA_VISIBLE_DEVICES=$i
     #export CUDA_MPS_PIPE_DIRECTORY=/tmp/mps_$i
     rm -fr /tmp/mps_$i

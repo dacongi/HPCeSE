@@ -173,7 +173,7 @@ if rank == 0:
     g_do=ipt_gen[:,16]
     
     # assign switch data
-    f_type=ipt_switch[1:nsw-2][int(sys.argv[-2])::2]
+    f_type=ipt_switch[1:int(sys.argv[-4])][int(sys.argv[-2])::int(sys.argv[-3])]
     #print(cp.cuda.runtime.getDeviceCount())
     s1=ipt_switch[:,0]
     s7=ipt_switch[:,6]
