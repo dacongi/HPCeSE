@@ -50,6 +50,7 @@ def sp_mat(command_1):
 
     
 def methods(command_1):
+    import numpy as np
     if command_1 == 'gpu':
         np = cp
         

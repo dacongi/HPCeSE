@@ -15,7 +15,7 @@ from mpi4py import MPI
 import math as mt
 import numpy as np
 import cupy as cp
-from func import m_ang_ab, m_spd_ab, solver, sp_mat, methods, parser
+from func import m_ang_ab, m_spd_ab, solver, sp_mat, methods, parser, array_partition
 
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
@@ -253,9 +253,9 @@ if __name__ == '__main__':
     t44=MPI.Wtime()
 
     t67=time.time()
-    prefrecV1=csr_matrix(-solver(Y,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T.toarray(),sys.argv[-2]))
-    frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T.toarray(),sys.argv[-2]))
-    posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T.toarray(),sys.argv[-2]))
+    prefrecV1=csr_matrix(-solver(Y,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
+    frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
+    posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
 
     prefY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(prefrecV1).T
     fY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(frecV1).T
