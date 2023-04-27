@@ -15,8 +15,8 @@ from mpi4py import MPI
 import math as mt
 import numpy as np
 import cupy as cp
-from func import m_ang_ab, m_spd_ab, solver, sp_mat, methods, parser, array_partition
-
+from func import m_ang_ab, m_spd_ab, solver, sp_mat, methods, parser, array_parti
+#count=cp.cuda.runtime.getDeviceCount()
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
     size = comm.Get_size()
@@ -178,7 +178,7 @@ if __name__ == '__main__':
 
         Y_2.setdiag(Y_2.diagonal()+yl+Gb+jay*Bb)
 
-        array_sizes_gen,absolute_ps = array_partition(ipt_gen, size)
+        array_sizes_gen,absolute_ps = array_parti(ipt_gen, size)
 
     else:
         array_sizes_gen = None
@@ -253,15 +253,17 @@ if __name__ == '__main__':
     t44=MPI.Wtime()
 
     t67=time.time()
-    prefrecV1=csr_matrix(-solver(Y,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
-    frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
-    posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]],sys.argv[-2]))
+    #device=rank%cp.cuda.runtime.getDeviceCount()
+    #with cp.cuda.Device(0):
+    prefrecV1=csr_matrix(-solver(Y,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T,sys.argv[-2]))
+    frecV1=csr_matrix(-solver(Y_1,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T,sys.argv[-2]))
+    posfrecV1=csr_matrix(-solver(Y_2,Y_b[absolute_ps[rank]:absolute_ps[rank+1]].T,sys.argv[-2]))
 
     prefY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(prefrecV1).T
     fY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(frecV1).T
     posfY11=Y_a[absolute_ps[rank]:absolute_ps[rank+1]]+Y_b.dot(posfrecV1).T
     t77=time.time()
-
+    print(t77-t67)
     if sys.argv[-2] == 'gpu':
         prefY11=prefY11.get()
         fY11=fY11.get()

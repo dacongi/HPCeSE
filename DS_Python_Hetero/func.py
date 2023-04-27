@@ -31,15 +31,6 @@ def m_spd_ab(d_y, y, pmech, mva, pelect, g_do, g_H, n_step, step_w):
     return y
 
 
-def solver(A, B, command_1):
-    if command_1 == 'gpu':
-        from cupyx.scipy.sparse.linalg import splu
-        return splu(A).solve(B.T.toarray())
-    else:
-        from scipy.sparse.linalg import spsolve
-        return spsolve(A, B.T)
-
-    
 def sp_mat(command_1):
     if command_1 == 'gpu':
         from cupyx.scipy.sparse import csr_matrix, csc_matrix
@@ -48,7 +39,44 @@ def sp_mat(command_1):
         from scipy.sparse import csc_matrix, csr_matrix
         return csr_matrix, csc_matrix
 
+
+def inv(sparse_array,command_1):
+    from scipy.sparse.linalg import inv
+    if command_1 == 'gpu':
+        sparse_array=sparse_array.get()
+    csr_matrix, csc_matrix = sp_mat('cpu')
     
+    return csc_matrix(inv(sparse_array))
+
+
+def find(sparse_array,command_1):
+    if command_1 == 'gpu':
+        from cupyx.scipy.sparse import find
+        return find(sparse_array)
+    else:
+        from scipy.sparse import find
+        return find(sparse_array)
+
+    
+def solver(A, B, command_1):
+    if command_1 == 'gpu':
+        csr_matrix, csc_matrix = sp_mat(command_1)
+        from cupyx.scipy.sparse.linalg import splu
+        from cupyx.scipy.sparse import isspmatrix
+        if not isspmatrix(A):
+            A=csc_matrix(A)
+
+        if isspmatrix(B):
+            B=B.toarray()
+        else:
+            B=csc_matrix(B).toarray()
+
+        return csc_matrix(splu(A).solve(B))
+    else:
+        from scipy.sparse.linalg import spsolve
+        return spsolve(A, B)
+
+
 def methods(command_1):
     import numpy as np
     if command_1 == 'gpu':
@@ -98,7 +126,7 @@ def parser(command_2, array, dtype):
     return b_1, b_2, b_3, b_4, nb_1, nb_2, nb_3, nb_4
 
 
-def array_partition(array, npart):
+def array_parti(array, npart):
     #build a function to partition the related data
     split_array = np.array_split(array,npart,axis=0)
     
